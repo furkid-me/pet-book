@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>誠品寵物書籍目錄</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Microsoft JhengHei", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            padding: 30px 0;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .toolbar button {
+            padding: 10px 20px;
+            border: 2px solid white;
+            background: transparent;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .toolbar button:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .toolbar button.primary {
+            background: #4CAF50;
+            border-color: #4CAF50;
+        }
+
+        .toolbar button.primary:hover {
+            background: #45a049;
+        }
+
+        .edit-count {
+            background: #ff9800;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-card .label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+
+        .filters {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .filters h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .tag {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .tag.animal {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .tag.animal:hover, .tag.animal.active {
+            background: #1976d2;
+            color: white;
+        }
+
+        .tag.topic {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .tag.topic:hover, .tag.topic.active {
+            background: #7b1fa2;
+            color: white;
+        }
+
+        .results-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            color: white;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .results-info .count {
+            font-size: 1.2rem;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+        }
+
+        .view-toggle button {
+            padding: 8px 16px;
+            border: 2px solid white;
+            background: transparent;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .view-toggle button.active,
+        .view-toggle button:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .books-table {
+            display: none;
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .books-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .books-table th,
+        .books-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .books-table th {
+            background: #667eea;
+            color: white;
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+        }
+
+        .books-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .books-table .edit-btn {
+            padding: 5px 10px;
+            font-size: 0.85rem;
+        }
+
+        .book-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+        }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .book-card.edited {
+            border: 3px solid #4CAF50;
+        }
+
+        .book-card.edited::before {
+            content: "已修改";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #4CAF50;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            z-index: 10;
+        }
+
+        .book-card .image-container {
+            height: 180px;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .book-card img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .book-card .content {
+            padding: 15px;
+        }
+
+        .book-card .title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .book-card .author {
+            color: #666;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+
+        .book-card .price-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .book-card .price {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #e53935;
+        }
+
+        .book-card .original-price {
+            font-size: 0.85rem;
+            color: #999;
+            text-decoration: line-through;
+        }
+
+        .book-card .discount {
+            background: #ffeb3b;
+            color: #333;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .book-card .categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 12px;
+            min-height: 50px;
+        }
+
+        .book-card .category-tag {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .book-card .category-tag.animal {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .book-card .category-tag.topic {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .book-card .buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .book-card .link-btn {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: opacity 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .book-card .link-btn:hover {
+            opacity: 0.9;
+        }
+
+        .book-card .edit-btn {
+            padding: 10px 15px;
+            background: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .book-card .edit-btn:hover {
+            background: #f57c00;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .pagination button {
+            padding: 10px 18px;
+            border: none;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .pagination button:hover,
+        .pagination button.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Modal 樣式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .modal h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .modal .book-info {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .modal .book-info h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .modal .book-info p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .modal .form-group {
+            margin-bottom: 20px;
+        }
+
+        .modal .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .modal .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .modal .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 12px;
+            background: #f0f0f0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .modal .checkbox-item:hover {
+            background: #e0e0e0;
+        }
+
+        .modal .checkbox-item input {
+            cursor: pointer;
+        }
+
+        .modal .checkbox-item.animal input:checked + span {
+            color: #1976d2;
+            font-weight: bold;
+        }
+
+        .modal .checkbox-item.topic input:checked + span {
+            color: #7b1fa2;
+            font-weight: bold;
+        }
+
+        .modal .btn-group {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 25px;
+        }
+
+        .modal .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .modal .btn-cancel {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .modal .btn-cancel:hover {
+            background: #d0d0d0;
+        }
+
+        .modal .btn-save {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .modal .btn-save:hover {
+            background: #45a049;
+        }
+
+        footer {
+            text-align: center;
+            color: white;
+            padding: 30px 0;
+            opacity: 0.8;
+        }
+
+        /* Toast 通知 */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #333;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            z-index: 2000;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast.success {
+            background: #4CAF50;
+        }
+
+        .toast.error {
+            background: #f44336;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .filter-row {
+                flex-direction: column;
+            }
+
+            .books-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 誠品寵物書籍目錄</h1>
+            <p>收錄 <span id="totalBooks">0</span> 本書籍，依動物種類與主題分類</p>
+            <div class="toolbar">
+                <span class="edit-count" id="editCount" style="display: none;">已修改 0 本</span>
+                <button onclick="exportCSV()" class="primary">📥 匯出修正後 CSV</button>
+                <button onclick="clearEdits()">🗑️ 清除所有修改</button>
+            </div>
+        </header>
+
+        <div class="stats-container" id="statsContainer"></div>
+
+        <div class="filters">
+            <h3>🔍 篩選與搜尋</h3>
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>關鍵字搜尋</label>
+                    <input type="text" id="searchInput" placeholder="輸入書名或作者...">
+                </div>
+                <div class="filter-group">
+                    <label>動物種類</label>
+                    <select id="animalFilter">
+                        <option value="">全部動物</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>主題分類</label>
+                    <select id="topicFilter">
+                        <option value="">全部主題</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>顯示狀態</label>
+                    <select id="editFilter">
+                        <option value="">全部書籍</option>
+                        <option value="edited">僅顯示已修改</option>
+                        <option value="unedited">僅顯示未修改</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label style="font-weight: 500; color: #555; margin-bottom: 8px; display: block;">快速篩選 - 動物種類</label>
+                <div class="tags-container" id="animalTags"></div>
+            </div>
+
+            <div style="margin-top: 15px;">
+                <label style="font-weight: 500; color: #555; margin-bottom: 8px; display: block;">快速篩選 - 主題分類</label>
+                <div class="tags-container" id="topicTags"></div>
+            </div>
+        </div>
+
+        <div class="results-info">
+            <div class="count">顯示 <span id="resultsCount">0</span> 本書籍</div>
+            <div class="view-toggle">
+                <button id="gridView" class="active">卡片檢視</button>
+                <button id="tableView">表格檢視</button>
+            </div>
+        </div>
+
+        <div class="books-grid" id="booksGrid"></div>
+        <div class="books-table" id="booksTable">
+            <table>
+                <thead>
+                    <tr>
+                        <th>書名</th>
+                        <th>作者</th>
+                        <th>售價</th>
+                        <th>動物種類</th>
+                        <th>主題分類</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+
+        <div class="pagination" id="pagination"></div>
+
+        <footer>
+            <p>資料來源：誠品書店 | 點擊「編輯」按鈕可修正分類</p>
+        </footer>
+    </div>
+
+    <!-- 編輯 Modal -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <h2>✏️ 編輯書籍分類</h2>
+            <div class="book-info" id="modalBookInfo"></div>
+
+            <div class="form-group">
+                <label>動物種類（可多選）</label>
+                <div class="checkbox-group" id="animalCheckboxes"></div>
+            </div>
+
+            <div class="form-group">
+                <label>主題分類（可多選）</label>
+                <div class="checkbox-group" id="topicCheckboxes"></div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-cancel" onclick="closeModal()">取消</button>
+                <button class="btn btn-save" onclick="saveEdit()">儲存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 通知 -->
+    <div class="toast" id="toast"></div>
+
+    <script src="books_data.js"></script>
+    <script>
+        // 設定
+        const ITEMS_PER_PAGE = 24;
+        let currentPage = 1;
+        let filteredBooks = [];
+        let currentView = 'grid';
+        let editingBookIndex = null;
+
+        // 從 localStorage 載入編輯記錄
+        let edits = JSON.parse(localStorage.getItem('bookEdits') || '{}');
+
+        // 動物種類和主題選項
+        const animalOptions = ['貓', '狗', '鳥類', '魚類水族', '爬蟲兩棲', '小動物', '野生動物', '通用'];
+        const topicOptions = ['照護飼養', '行為訓練', '醫療健康', '寵物溝通', '圖鑑百科', '攝影藝術', '故事散文', '離世告別', '美容', '昆蟲', '海洋生物', '自然科普', '獸醫專業', '農牧養殖', '童書繪本', '環境保育', '藝術人文', '其他'];
+
+        // 取得書籍的分類（考慮編輯）
+        function getBookCategories(book, index) {
+            if (edits[index]) {
+                return {
+                    animal: edits[index].animal || '',
+                    topic: edits[index].topic || ''
+                };
+            }
+            return {
+                animal: book['動物種類'] || '',
+                topic: book['主題分類'] || ''
+            };
+        }
+
+        // 初始化
+        function init() {
+            document.getElementById('totalBooks').textContent = booksData.length;
+
+            // 填充下拉選單
+            const animalSelect = document.getElementById('animalFilter');
+            const topicSelect = document.getElementById('topicFilter');
+
+            animalOptions.forEach(type => {
+                animalSelect.innerHTML += `<option value="${type}">${type}</option>`;
+            });
+
+            topicOptions.forEach(type => {
+                topicSelect.innerHTML += `<option value="${type}">${type}</option>`;
+            });
+
+            // 建立標籤
+            createTags();
+
+            // 建立統計
+            createStats();
+
+            // 建立 checkbox
+            createCheckboxes();
+
+            // 綁定事件
+            bindEvents();
+
+            // 更新編輯計數
+            updateEditCount();
+
+            // 顯示書籍
+            filterAndDisplay();
+        }
+
+        function createTags() {
+            const animalTagsContainer = document.getElementById('animalTags');
+            const topicTagsContainer = document.getElementById('topicTags');
+
+            // 計算各類別數量（考慮編輯）
+            const animalCounts = {};
+            const topicCounts = {};
+
+            booksData.forEach((book, index) => {
+                const cats = getBookCategories(book, index);
+                if (cats.animal) {
+                    cats.animal.split(', ').forEach(t => {
+                        const type = t.trim();
+                        if (type) animalCounts[type] = (animalCounts[type] || 0) + 1;
+                    });
+                }
+                if (cats.topic) {
+                    cats.topic.split(', ').forEach(t => {
+                        const type = t.trim();
+                        if (type) topicCounts[type] = (topicCounts[type] || 0) + 1;
+                    });
+                }
+            });
+
+            animalTagsContainer.innerHTML = '';
+            topicTagsContainer.innerHTML = '';
+
+            Object.entries(animalCounts)
+                .sort((a, b) => b[1] - a[1])
+                .forEach(([type, count]) => {
+                    animalTagsContainer.innerHTML += `
+                        <span class="tag animal" data-type="${type}">${type} (${count})</span>
+                    `;
+                });
+
+            Object.entries(topicCounts)
+                .sort((a, b) => b[1] - a[1])
+                .forEach(([type, count]) => {
+                    topicTagsContainer.innerHTML += `
+                        <span class="tag topic" data-type="${type}">${type} (${count})</span>
+                    `;
+                });
+
+            // 重新綁定標籤事件
+            bindTagEvents();
+        }
+
+        function createStats() {
+            const container = document.getElementById('statsContainer');
+            const editedCount = Object.keys(edits).length;
+
+            const stats = [
+                { label: '總書籍數', value: booksData.length },
+                { label: '動物種類', value: animalOptions.length },
+                { label: '主題分類', value: topicOptions.length },
+                { label: '已修正', value: editedCount },
+            ];
+
+            container.innerHTML = stats.map(s => `
+                <div class="stat-card">
+                    <div class="number">${s.value}</div>
+                    <div class="label">${s.label}</div>
+                </div>
+            `).join('');
+        }
+
+        function createCheckboxes() {
+            const animalContainer = document.getElementById('animalCheckboxes');
+            const topicContainer = document.getElementById('topicCheckboxes');
+
+            animalContainer.innerHTML = animalOptions.map(opt => `
+                <label class="checkbox-item animal">
+                    <input type="checkbox" value="${opt}" name="animal">
+                    <span>${opt}</span>
+                </label>
+            `).join('');
+
+            topicContainer.innerHTML = topicOptions.map(opt => `
+                <label class="checkbox-item topic">
+                    <input type="checkbox" value="${opt}" name="topic">
+                    <span>${opt}</span>
+                </label>
+            `).join('');
+        }
+
+        function bindEvents() {
+            document.getElementById('searchInput').addEventListener('input', () => {
+                currentPage = 1;
+                filterAndDisplay();
+            });
+
+            document.getElementById('animalFilter').addEventListener('change', () => {
+                currentPage = 1;
+                filterAndDisplay();
+            });
+
+            document.getElementById('topicFilter').addEventListener('change', () => {
+                currentPage = 1;
+                filterAndDisplay();
+            });
+
+            document.getElementById('editFilter').addEventListener('change', () => {
+                currentPage = 1;
+                filterAndDisplay();
+            });
+
+            document.getElementById('gridView').addEventListener('click', () => {
+                currentView = 'grid';
+                document.getElementById('gridView').classList.add('active');
+                document.getElementById('tableView').classList.remove('active');
+                document.getElementById('booksGrid').style.display = 'grid';
+                document.getElementById('booksTable').style.display = 'none';
+            });
+
+            document.getElementById('tableView').addEventListener('click', () => {
+                currentView = 'table';
+                document.getElementById('tableView').classList.add('active');
+                document.getElementById('gridView').classList.remove('active');
+                document.getElementById('booksGrid').style.display = 'none';
+                document.getElementById('booksTable').style.display = 'block';
+            });
+
+            // Modal 關閉
+            document.getElementById('editModal').addEventListener('click', (e) => {
+                if (e.target.id === 'editModal') closeModal();
+            });
+        }
+
+        function bindTagEvents() {
+            document.querySelectorAll('.tag.animal').forEach(tag => {
+                tag.addEventListener('click', () => {
+                    document.querySelectorAll('.tag.animal').forEach(t => t.classList.remove('active'));
+                    tag.classList.toggle('active');
+                    document.getElementById('animalFilter').value = tag.classList.contains('active') ? tag.dataset.type : '';
+                    currentPage = 1;
+                    filterAndDisplay();
+                });
+            });
+
+            document.querySelectorAll('.tag.topic').forEach(tag => {
+                tag.addEventListener('click', () => {
+                    document.querySelectorAll('.tag.topic').forEach(t => t.classList.remove('active'));
+                    tag.classList.toggle('active');
+                    document.getElementById('topicFilter').value = tag.classList.contains('active') ? tag.dataset.type : '';
+                    currentPage = 1;
+                    filterAndDisplay();
+                });
+            });
+        }
+
+        function filterAndDisplay() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const animalFilter = document.getElementById('animalFilter').value;
+            const topicFilter = document.getElementById('topicFilter').value;
+            const editFilter = document.getElementById('editFilter').value;
+
+            filteredBooks = booksData.map((book, index) => ({ ...book, _index: index })).filter((book, idx) => {
+                const cats = getBookCategories(book, book._index);
+                const isEdited = !!edits[book._index];
+
+                const matchSearch = !search ||
+                    (book['書名'] && book['書名'].toLowerCase().includes(search)) ||
+                    (book['作者'] && book['作者'].toLowerCase().includes(search));
+
+                const matchAnimal = !animalFilter || cats.animal.includes(animalFilter);
+                const matchTopic = !topicFilter || cats.topic.includes(topicFilter);
+
+                const matchEdit = !editFilter ||
+                    (editFilter === 'edited' && isEdited) ||
+                    (editFilter === 'unedited' && !isEdited);
+
+                return matchSearch && matchAnimal && matchTopic && matchEdit;
+            });
+
+            document.getElementById('resultsCount').textContent = filteredBooks.length;
+            displayBooks();
+            displayPagination();
+        }
+
+        function displayBooks() {
+            const start = (currentPage - 1) * ITEMS_PER_PAGE;
+            const end = start + ITEMS_PER_PAGE;
+            const pageBooks = filteredBooks.slice(start, end);
+
+            const grid = document.getElementById('booksGrid');
+            if (pageBooks.length === 0) {
+                grid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: white; padding: 40px;">
+                    <h3>找不到符合條件的書籍</h3>
+                </div>`;
+            } else {
+                grid.innerHTML = pageBooks.map(book => {
+                    const cats = getBookCategories(book, book._index);
+                    const isEdited = !!edits[book._index];
+                    return `
+                    <div class="book-card ${isEdited ? 'edited' : ''}">
+                        <div class="image-container">
+                            <img src="${book['圖片'] || ''}" alt="${book['書名']}"
+                                 onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect fill=%22%23f0f0f0%22 width=%22100%22 height=%22100%22/><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23999%22 font-size=%2214%22>No Image</text></svg>'">
+                        </div>
+                        <div class="content">
+                            <div class="title" title="${book['書名']}">${book['書名'] || '無書名'}</div>
+                            <div class="author">${book['作者'] || '未知作者'}</div>
+                            <div class="price-row">
+                                <span class="price">$${book['售價'] || '-'}</span>
+                                ${book['原價'] ? `<span class="original-price">$${book['原價']}</span>` : ''}
+                                ${book['折扣'] ? `<span class="discount">${book['折扣']}</span>` : ''}
+                            </div>
+                            <div class="categories">
+                                ${cats.animal.split(', ').filter(t => t).map(t =>
+                                    `<span class="category-tag animal">${t}</span>`
+                                ).join('')}
+                                ${cats.topic.split(', ').filter(t => t).map(t =>
+                                    `<span class="category-tag topic">${t}</span>`
+                                ).join('')}
+                            </div>
+                            <div class="buttons">
+                                <a href="${book['連結']}" target="_blank" class="link-btn">購買</a>
+                                <button class="edit-btn" onclick="openEditModal(${book._index})">編輯</button>
+                            </div>
+                        </div>
+                    </div>
+                `}).join('');
+            }
+
+            // 表格檢視
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = pageBooks.map(book => {
+                const cats = getBookCategories(book, book._index);
+                const isEdited = !!edits[book._index];
+                return `
+                <tr style="${isEdited ? 'background: #e8f5e9;' : ''}">
+                    <td>${book['書名'] || '-'}</td>
+                    <td>${book['作者'] || '-'}</td>
+                    <td>$${book['售價'] || '-'}</td>
+                    <td>${cats.animal || '-'}</td>
+                    <td>${cats.topic || '-'}</td>
+                    <td><button class="edit-btn" onclick="openEditModal(${book._index})">編輯</button></td>
+                </tr>
+            `}).join('');
+        }
+
+        function displayPagination() {
+            const totalPages = Math.ceil(filteredBooks.length / ITEMS_PER_PAGE);
+            const pagination = document.getElementById('pagination');
+
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+
+            let html = `<button ${currentPage === 1 ? 'disabled' : ''} onclick="goToPage(${currentPage - 1})">上一頁</button>`;
+
+            const startPage = Math.max(1, currentPage - 2);
+            const endPage = Math.min(totalPages, currentPage + 2);
+
+            if (startPage > 1) {
+                html += `<button onclick="goToPage(1)">1</button>`;
+                if (startPage > 2) html += `<button disabled>...</button>`;
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                html += `<button class="${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) html += `<button disabled>...</button>`;
+                html += `<button onclick="goToPage(${totalPages})">${totalPages}</button>`;
+            }
+
+            html += `<button ${currentPage === totalPages ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})">下一頁</button>`;
+
+            pagination.innerHTML = html;
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            displayBooks();
+            displayPagination();
+            window.scrollTo({ top: 400, behavior: 'smooth' });
+        }
+
+        // 編輯功能
+        function openEditModal(index) {
+            editingBookIndex = index;
+            const book = booksData[index];
+            const cats = getBookCategories(book, index);
+
+            document.getElementById('modalBookInfo').innerHTML = `
+                <h4>${book['書名']}</h4>
+                <p>作者：${book['作者'] || '未知'}</p>
+            `;
+
+            // 設定 checkbox 狀態
+            const currentAnimals = cats.animal.split(', ').map(t => t.trim());
+            const currentTopics = cats.topic.split(', ').map(t => t.trim());
+
+            document.querySelectorAll('#animalCheckboxes input').forEach(cb => {
+                cb.checked = currentAnimals.includes(cb.value);
+            });
+
+            document.querySelectorAll('#topicCheckboxes input').forEach(cb => {
+                cb.checked = currentTopics.includes(cb.value);
+            });
+
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').classList.remove('active');
+            editingBookIndex = null;
+        }
+
+        function saveEdit() {
+            if (editingBookIndex === null) return;
+
+            const selectedAnimals = [];
+            const selectedTopics = [];
+
+            document.querySelectorAll('#animalCheckboxes input:checked').forEach(cb => {
+                selectedAnimals.push(cb.value);
+            });
+
+            document.querySelectorAll('#topicCheckboxes input:checked').forEach(cb => {
+                selectedTopics.push(cb.value);
+            });
+
+            edits[editingBookIndex] = {
+                animal: selectedAnimals.join(', '),
+                topic: selectedTopics.join(', ')
+            };
+
+            localStorage.setItem('bookEdits', JSON.stringify(edits));
+
+            closeModal();
+            updateEditCount();
+            createTags();
+            createStats();
+            filterAndDisplay();
+            showToast('分類已儲存！', 'success');
+        }
+
+        function updateEditCount() {
+            const count = Object.keys(edits).length;
+            const el = document.getElementById('editCount');
+            if (count > 0) {
+                el.textContent = `已修改 ${count} 本`;
+                el.style.display = 'inline-block';
+            } else {
+                el.style.display = 'none';
+            }
+        }
+
+        function clearEdits() {
+            if (!confirm('確定要清除所有修改嗎？此操作無法復原。')) return;
+            edits = {};
+            localStorage.removeItem('bookEdits');
+            updateEditCount();
+            createTags();
+            createStats();
+            filterAndDisplay();
+            showToast('已清除所有修改', 'success');
+        }
+
+        function exportCSV() {
+            const headers = ['書名', '作者', '售價', '原價', '折扣', '動物種類', '主題分類', '組合分類', '連結', '圖片'];
+            const rows = booksData.map((book, index) => {
+                const cats = getBookCategories(book, index);
+                const combined = [];
+                cats.animal.split(', ').filter(a => a).forEach(a => {
+                    cats.topic.split(', ').filter(t => t).forEach(t => {
+                        combined.push(`${a}-${t}`);
+                    });
+                });
+
+                return [
+                    book['書名'] || '',
+                    book['作者'] || '',
+                    book['售價'] || '',
+                    book['原價'] || '',
+                    book['折扣'] || '',
+                    cats.animal,
+                    cats.topic,
+                    combined.join(', '),
+                    book['連結'] || '',
+                    book['圖片'] || ''
+                ].map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',');
+            });
+
+            const csv = '\uFEFF' + headers.join(',') + '\n' + rows.join('\n');
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `pet_books_corrected_${new Date().toISOString().slice(0,10)}.csv`;
+            link.click();
+
+            showToast('CSV 已下載！', 'success');
+        }
+
+        function showToast(message, type = '') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // 啟動
+        init();
+    </script>
+</body>
+</html>
