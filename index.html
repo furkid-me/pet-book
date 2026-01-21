@@ -2,8 +2,14 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>誠品寵物書籍目錄</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Pet Books - 寵物書籍</title>
+
+    <!-- Google Fonts - Noto Serif/Sans TC for elegant Chinese typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
         * {
             margin: 0;
@@ -11,240 +17,531 @@
             box-sizing: border-box;
         }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Microsoft JhengHei", sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
+        :root {
+            /* E-Ink / Paper Style Colors */
+            --paper-white: #FDFBF7;
+            --paper-light: #F5F5F0;
+            --ink-black: #1A1A1A;
+            --ink-gray: #4A4A4A;
+            --ink-light: #6B6B6B;
+            --border-soft: #E8E4DC;
+            --accent-warm: #C4956A;
+            --accent-orange: #E8913A;
+            --accent-green: #5D8C5A;
+            --shadow-book: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06);
+            --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+            --nav-height: 65px;
         }
 
-        .container {
-            max-width: 1400px;
+        body {
+            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--paper-white);
+            color: var(--ink-black);
+            min-height: 100vh;
+            padding-bottom: var(--nav-height);
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.6;
+        }
+
+        /* 頂部導航 - 紙質感 */
+        .top-header {
+            position: sticky;
+            top: 0;
+            background: rgba(253, 251, 247, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 100;
+            border-bottom: 1px solid var(--border-soft);
+        }
+
+        .top-header-inner {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .header-btn {
+            background: none;
+            border: 1px solid var(--border-soft);
+            color: var(--ink-gray);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .header-btn:hover {
+            background: var(--paper-light);
+            border-color: var(--ink-light);
+        }
+
+        .header-btn.primary {
+            background: var(--ink-black);
+            color: var(--paper-white);
+            border-color: var(--ink-black);
+        }
+
+        .header-btn.primary:hover {
+            background: var(--ink-gray);
+        }
+
+        /* 主要內容區 */
+        .main-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* 頁面標題 - 書籍風格 */
+        .page-title {
+            padding: 32px 0 16px;
+            text-align: center;
+        }
+
+        .page-title h1 {
+            font-family: 'Noto Serif TC', Georgia, serif;
+            font-size: 38px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--ink-black);
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            color: var(--ink-light);
+            font-size: 15px;
+            font-weight: 400;
+        }
+
+        /* 統計卡片 */
+        .stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            padding: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat-chip {
+            background: var(--paper-light);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid var(--border-soft);
+        }
+
+        .stat-chip .number {
+            font-weight: 700;
+            color: var(--accent-warm);
+            font-family: 'Noto Serif TC', serif;
+        }
+
+        /* 搜尋欄 */
+        .search-section {
+            padding: 16px 0;
+            max-width: 600px;
             margin: 0 auto;
         }
 
-        header {
-            text-align: center;
-            color: white;
-            padding: 30px 0;
-        }
-
-        header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-
-        .toolbar {
+        .search-bar {
             display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-
-        .toolbar button {
-            padding: 10px 20px;
-            border: 2px solid white;
-            background: transparent;
-            color: white;
+            align-items: center;
+            background: var(--paper-light);
+            border: 1px solid var(--border-soft);
             border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: all 0.3s;
+            padding: 12px 16px;
+            gap: 10px;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
-        .toolbar button:hover {
-            background: white;
-            color: #667eea;
+        .search-bar:focus-within {
+            border-color: var(--accent-warm);
+            box-shadow: 0 0 0 3px rgba(196, 149, 106, 0.1);
         }
 
-        .toolbar button.primary {
-            background: #4CAF50;
-            border-color: #4CAF50;
+        .search-bar svg {
+            width: 18px;
+            height: 18px;
+            color: var(--ink-light);
+            flex-shrink: 0;
         }
 
-        .toolbar button.primary:hover {
-            background: #45a049;
-        }
-
-        .edit-count {
-            background: #ff9800;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: bold;
-        }
-
-        .stats-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .stat-card .number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #667eea;
-        }
-
-        .stat-card .label {
-            color: #666;
-            font-size: 0.9rem;
-            margin-top: 5px;
-        }
-
-        .filters {
-            background: white;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .filters h3 {
-            margin-bottom: 15px;
-            color: #333;
-        }
-
-        .filter-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .filter-group {
+        .search-bar input {
             flex: 1;
-            min-width: 200px;
-        }
-
-        .filter-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-            color: #555;
-        }
-
-        .filter-group select,
-        .filter-group input {
-            width: 100%;
-            padding: 10px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-
-        .filter-group select:focus,
-        .filter-group input:focus {
+            border: none;
+            background: none;
+            font-size: 15px;
             outline: none;
-            border-color: #667eea;
+            color: var(--ink-black);
+            font-family: inherit;
         }
 
-        .tags-container {
+        .search-bar input::placeholder {
+            color: var(--ink-light);
+        }
+
+        /* 篩選區 */
+        .filter-section {
+            padding: 16px 0;
+        }
+
+        .filter-title {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--ink-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .filter-tags {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
-            margin-top: 15px;
+            margin-bottom: 16px;
         }
 
-        .tag {
-            padding: 6px 14px;
+        .filter-tag {
+            padding: 7px 14px;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 13px;
             cursor: pointer;
-            transition: all 0.3s;
-            border: 2px solid transparent;
+            transition: all 0.2s ease;
+            border: 1px solid var(--border-soft);
+            background: var(--paper-white);
+            color: var(--ink-gray);
+            font-family: inherit;
         }
 
-        .tag.animal {
-            background: #e3f2fd;
-            color: #1976d2;
+        .filter-tag:hover {
+            background: var(--paper-light);
+            border-color: var(--ink-light);
         }
 
-        .tag.animal:hover, .tag.animal.active {
-            background: #1976d2;
-            color: white;
+        .filter-tag.active {
+            background: var(--ink-black);
+            color: var(--paper-white);
+            border-color: var(--ink-black);
         }
 
-        .tag.topic {
-            background: #f3e5f5;
-            color: #7b1fa2;
+        .filter-tag.animal.active {
+            background: var(--accent-warm);
+            border-color: var(--accent-warm);
         }
 
-        .tag.topic:hover, .tag.topic.active {
-            background: #7b1fa2;
-            color: white;
+        .filter-tag.topic.active {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
         }
 
+        /* 下拉篩選 */
+        .filter-dropdowns {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .filter-select {
+            padding: 10px 16px;
+            border-radius: 6px;
+            border: 1px solid var(--border-soft);
+            font-size: 14px;
+            background: var(--paper-white);
+            color: var(--ink-black);
+            cursor: pointer;
+            min-width: 130px;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--accent-warm);
+        }
+
+        /* 區塊標題 */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px 0 16px;
+            border-top: 1px solid var(--border-soft);
+            margin-top: 8px;
+        }
+
+        .section-title {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--ink-black);
+        }
+
+        /* 結果資訊 */
         .results-info {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            color: white;
-            flex-wrap: wrap;
-            gap: 10px;
+            padding: 12px 0;
         }
 
-        .results-info .count {
-            font-size: 1.2rem;
+        .results-count {
+            font-size: 14px;
+            color: var(--ink-light);
         }
 
         .view-toggle {
             display: flex;
-            gap: 10px;
-        }
-
-        .view-toggle button {
-            padding: 8px 16px;
-            border: 2px solid white;
-            background: transparent;
-            color: white;
+            background: var(--paper-light);
             border-radius: 6px;
+            padding: 3px;
+            border: 1px solid var(--border-soft);
+        }
+
+        .view-btn {
+            padding: 6px 14px;
+            border: none;
+            background: none;
+            border-radius: 4px;
+            font-size: 13px;
             cursor: pointer;
-            transition: all 0.3s;
+            color: var(--ink-light);
+            transition: all 0.2s;
+            font-family: inherit;
         }
 
-        .view-toggle button.active,
-        .view-toggle button:hover {
-            background: white;
-            color: #667eea;
+        .view-btn.active {
+            background: var(--paper-white);
+            color: var(--ink-black);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
 
+        /* 書籍網格 */
         .books-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+            gap: 24px;
+            padding-bottom: 24px;
         }
 
+        /* 書籍卡片 - 真實書籍感 */
+        .book-card {
+            background: var(--paper-white);
+            border-radius: 4px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .book-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .book-card:hover .book-cover {
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* 書籍封面 - 3D 書籍效果 */
+        .book-cover {
+            position: relative;
+            aspect-ratio: 2 / 3;
+            background: linear-gradient(135deg, var(--paper-light) 0%, #E8E4DC 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 2px 6px 6px 2px;
+            box-shadow: var(--shadow-book);
+            transition: box-shadow 0.3s ease;
+            /* 書脊效果 */
+            border-left: 3px solid rgba(0,0,0,0.08);
+        }
+
+        .book-cover::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 8px;
+            background: linear-gradient(to right, rgba(0,0,0,0.1), transparent);
+            pointer-events: none;
+        }
+
+        .book-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .book-info {
+            padding: 12px 4px 8px;
+        }
+
+        .book-title {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 4px;
+            color: var(--ink-black);
+        }
+
+        .book-author {
+            font-size: 12px;
+            color: var(--ink-light);
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .book-price {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .current-price {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--accent-orange);
+        }
+
+        .original-price {
+            font-size: 12px;
+            color: var(--ink-light);
+            text-decoration: line-through;
+        }
+
+        .book-categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: 10px;
+        }
+
+        .category-tag {
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 3px;
+            background: var(--paper-light);
+            color: var(--ink-light);
+            border: 1px solid var(--border-soft);
+        }
+
+        .category-tag.animal {
+            background: #FDF6EC;
+            color: #8B6914;
+            border-color: #EED9A8;
+        }
+
+        .category-tag.topic {
+            background: #F0F7EF;
+            color: #3D6B38;
+            border-color: #C8DFBE;
+        }
+
+        /* 書籍卡片按鈕 */
+        .book-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .buy-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 9px 8px;
+            background: var(--accent-orange);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.2s;
+            font-family: inherit;
+        }
+
+        .buy-btn:hover {
+            background: #D17E2D;
+        }
+
+        .secondary-btns {
+            display: flex;
+            gap: 6px;
+        }
+
+        .wishlist-btn, .edit-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 7px 4px;
+            background: var(--paper-white);
+            color: var(--ink-gray);
+            border: 1px solid var(--border-soft);
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .wishlist-btn:hover, .edit-btn:hover {
+            background: var(--paper-light);
+            border-color: var(--ink-light);
+        }
+
+        .wishlist-btn svg, .edit-btn svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .wishlist-btn.active {
+            background: #FDF6EC;
+            border-color: var(--accent-warm);
+            color: var(--accent-warm);
+        }
+
+        .wishlist-btn.active svg {
+            fill: var(--accent-warm);
+        }
+
+        /* 表格視圖 */
         .books-table {
             display: none;
-            width: 100%;
-            background: white;
-            border-radius: 12px;
+            background: var(--paper-white);
+            border-radius: 8px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-soft);
+            margin-bottom: 24px;
         }
 
         .books-table table {
@@ -254,217 +551,155 @@
 
         .books-table th,
         .books-table td {
-            padding: 12px 15px;
+            padding: 14px 16px;
             text-align: left;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--border-soft);
+            font-size: 13px;
         }
 
         .books-table th {
-            background: #667eea;
-            color: white;
-            font-weight: 500;
-            position: sticky;
-            top: 0;
+            background: var(--paper-light);
+            font-weight: 600;
+            color: var(--ink-light);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: 'Noto Serif TC', serif;
         }
 
         .books-table tr:hover {
-            background: #f5f5f5;
+            background: var(--paper-light);
         }
 
-        .books-table .edit-btn {
-            padding: 5px 10px;
-            font-size: 0.85rem;
-        }
-
-        .book-card {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
-            position: relative;
-        }
-
-        .book-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-        }
-
-        .book-card.edited {
-            border: 3px solid #4CAF50;
-        }
-
-        .book-card.edited::before {
-            content: "已修改";
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #4CAF50;
-            color: white;
-            padding: 4px 10px;
+        .books-table .table-btn {
+            padding: 6px 12px;
+            background: var(--paper-light);
+            border: 1px solid var(--border-soft);
             border-radius: 4px;
-            font-size: 0.75rem;
-            z-index: 10;
-        }
-
-        .book-card .image-container {
-            height: 180px;
-            background: #f5f5f5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-
-        .book-card img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-
-        .book-card .content {
-            padding: 15px;
-        }
-
-        .book-card .title {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-            line-height: 1.4;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .book-card .author {
-            color: #666;
-            font-size: 0.85rem;
-            margin-bottom: 10px;
-        }
-
-        .book-card .price-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .book-card .price {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #e53935;
-        }
-
-        .book-card .original-price {
-            font-size: 0.85rem;
-            color: #999;
-            text-decoration: line-through;
-        }
-
-        .book-card .discount {
-            background: #ffeb3b;
-            color: #333;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: bold;
-        }
-
-        .book-card .categories {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            margin-bottom: 12px;
-            min-height: 50px;
-        }
-
-        .book-card .category-tag {
-            font-size: 0.7rem;
-            padding: 3px 8px;
-            border-radius: 4px;
-        }
-
-        .book-card .category-tag.animal {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-
-        .book-card .category-tag.topic {
-            background: #f3e5f5;
-            color: #7b1fa2;
-        }
-
-        .book-card .buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .book-card .link-btn {
-            flex: 1;
-            text-align: center;
-            padding: 10px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            font-weight: 500;
-            transition: opacity 0.3s;
-            font-size: 0.9rem;
-        }
-
-        .book-card .link-btn:hover {
-            opacity: 0.9;
-        }
-
-        .book-card .edit-btn {
-            padding: 10px 15px;
-            background: #ff9800;
-            color: white;
-            border: none;
-            border-radius: 6px;
+            font-size: 12px;
             cursor: pointer;
-            font-weight: 500;
-            transition: background 0.3s;
-            font-size: 0.9rem;
+            color: var(--ink-gray);
+            margin-right: 6px;
+            font-family: inherit;
+            transition: all 0.2s;
         }
 
-        .book-card .edit-btn:hover {
-            background: #f57c00;
+        .books-table .table-btn:hover {
+            background: var(--border-soft);
         }
 
+        .books-table .table-btn.wishlist-active {
+            background: #FDF6EC;
+            border-color: var(--accent-warm);
+            color: var(--accent-warm);
+        }
+
+        /* 分頁 */
         .pagination {
             display: flex;
             justify-content: center;
-            gap: 10px;
-            margin-top: 30px;
-            flex-wrap: wrap;
+            gap: 8px;
+            padding: 24px 0 36px;
         }
 
         .pagination button {
-            padding: 10px 18px;
-            border: none;
-            background: white;
-            color: #667eea;
-            border-radius: 8px;
+            min-width: 38px;
+            height: 38px;
+            border: 1px solid var(--border-soft);
+            background: var(--paper-white);
+            color: var(--ink-gray);
+            border-radius: 6px;
             cursor: pointer;
+            font-size: 14px;
             font-weight: 500;
-            transition: all 0.3s;
+            transition: all 0.2s;
+            font-family: inherit;
         }
 
-        .pagination button:hover,
+        .pagination button:hover {
+            background: var(--paper-light);
+            border-color: var(--ink-light);
+        }
+
         .pagination button.active {
-            background: #667eea;
-            color: white;
+            background: var(--ink-black);
+            color: var(--paper-white);
+            border-color: var(--ink-black);
         }
 
         .pagination button:disabled {
-            opacity: 0.5;
+            opacity: 0.4;
             cursor: not-allowed;
         }
 
-        /* Modal 樣式 */
+        /* 底部導航 */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(253, 251, 247, 0.98);
+            border-top: 1px solid var(--border-soft);
+            z-index: 100;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .bottom-nav-inner {
+            display: flex;
+            justify-content: space-around;
+            max-width: 450px;
+            margin: 0 auto;
+            padding: 8px 0 6px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            padding: 6px 14px;
+            color: var(--ink-light);
+            cursor: pointer;
+            border: none;
+            background: none;
+            transition: color 0.2s;
+            min-width: 56px;
+        }
+
+        .nav-item.active {
+            color: var(--accent-warm);
+        }
+
+        .nav-item svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .nav-item span {
+            font-size: 10px;
+            font-weight: 500;
+            font-family: inherit;
+        }
+
+        .nav-item .badge {
+            position: absolute;
+            top: 0;
+            right: 6px;
+            background: var(--accent-orange);
+            color: white;
+            font-size: 9px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .nav-item-wrapper {
+            position: relative;
+        }
+
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -472,9 +707,9 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.6);
+            background: rgba(26, 26, 26, 0.5);
             z-index: 1000;
-            align-items: center;
+            align-items: flex-end;
             justify-content: center;
         }
 
@@ -483,49 +718,70 @@
         }
 
         .modal-content {
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            max-width: 600px;
-            width: 90%;
-            max-height: 90vh;
+            background: var(--paper-white);
+            border-radius: 16px 16px 0 0;
+            padding: 24px;
+            width: 100%;
+            max-width: 480px;
+            max-height: 80vh;
             overflow-y: auto;
-            position: relative;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 20px;
+            font-weight: 600;
         }
 
         .modal-close {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 1.5rem;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--paper-light);
+            border: none;
             cursor: pointer;
-            color: #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ink-light);
+            transition: background 0.2s;
         }
 
         .modal-close:hover {
-            color: #333;
+            background: var(--border-soft);
         }
 
-        .modal h2 {
-            margin-bottom: 20px;
-            color: #333;
-        }
-
-        .modal .book-info {
-            background: #f5f5f5;
-            padding: 15px;
+        .modal .book-info-card {
+            background: var(--paper-light);
+            padding: 16px;
             border-radius: 8px;
             margin-bottom: 20px;
+            border: 1px solid var(--border-soft);
         }
 
-        .modal .book-info h4 {
-            color: #333;
-            margin-bottom: 5px;
+        .modal .book-info-card h4 {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
         }
 
-        .modal .book-info p {
-            color: #666;
-            font-size: 0.9rem;
+        .modal .book-info-card p {
+            font-size: 13px;
+            color: var(--ink-light);
         }
 
         .modal .form-group {
@@ -534,198 +790,354 @@
 
         .modal .form-group label {
             display: block;
-            font-weight: 500;
-            margin-bottom: 8px;
-            color: #333;
+            font-family: 'Noto Serif TC', serif;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink-light);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
         }
 
         .modal .checkbox-group {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
         }
 
         .modal .checkbox-item {
             display: flex;
             align-items: center;
-            gap: 5px;
-            padding: 8px 12px;
-            background: #f0f0f0;
+            gap: 6px;
+            padding: 10px 14px;
+            background: var(--paper-light);
+            border: 1px solid var(--border-soft);
             border-radius: 6px;
             cursor: pointer;
-            transition: all 0.3s;
+            font-size: 13px;
+            transition: all 0.2s;
         }
 
         .modal .checkbox-item:hover {
-            background: #e0e0e0;
+            background: var(--border-soft);
         }
 
-        .modal .checkbox-item input {
-            cursor: pointer;
-        }
-
-        .modal .checkbox-item.animal input:checked + span {
-            color: #1976d2;
-            font-weight: bold;
-        }
-
-        .modal .checkbox-item.topic input:checked + span {
-            color: #7b1fa2;
-            font-weight: bold;
+        .modal .checkbox-item input:checked + span {
+            font-weight: 600;
+            color: var(--ink-black);
         }
 
         .modal .btn-group {
             display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-            margin-top: 25px;
+            gap: 12px;
+            margin-top: 24px;
         }
 
         .modal .btn {
-            padding: 12px 25px;
+            flex: 1;
+            padding: 14px;
             border: none;
             border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
             cursor: pointer;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: all 0.3s;
+            font-family: inherit;
+            transition: all 0.2s;
         }
 
         .modal .btn-cancel {
-            background: #e0e0e0;
-            color: #333;
+            background: var(--paper-light);
+            color: var(--ink-gray);
+            border: 1px solid var(--border-soft);
         }
 
         .modal .btn-cancel:hover {
-            background: #d0d0d0;
+            background: var(--border-soft);
         }
 
         .modal .btn-save {
-            background: #4CAF50;
-            color: white;
+            background: var(--ink-black);
+            color: var(--paper-white);
         }
 
         .modal .btn-save:hover {
-            background: #45a049;
+            background: var(--ink-gray);
         }
 
-        footer {
+        /* Want to Read Modal */
+        .wishlist-modal .wishlist-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .wishlist-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border-soft);
+        }
+
+        .wishlist-item:last-child {
+            border-bottom: none;
+        }
+
+        .wishlist-item img {
+            width: 50px;
+            height: 75px;
+            object-fit: cover;
+            border-radius: 2px 4px 4px 2px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 2px solid rgba(0,0,0,0.08);
+        }
+
+        .wishlist-item-info {
+            flex: 1;
+        }
+
+        .wishlist-item-title {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .wishlist-item-author {
+            font-size: 12px;
+            color: var(--ink-light);
+        }
+
+        .wishlist-item-remove {
+            padding: 8px 14px;
+            background: none;
+            border: 1px solid var(--border-soft);
+            border-radius: 6px;
+            font-size: 12px;
+            color: var(--ink-light);
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .wishlist-item-remove:hover {
+            background: var(--paper-light);
+            color: var(--ink-gray);
+        }
+
+        .wishlist-empty {
             text-align: center;
-            color: white;
-            padding: 30px 0;
-            opacity: 0.8;
+            padding: 48px 24px;
+            color: var(--ink-light);
         }
 
-        /* Toast 通知 */
+        .wishlist-empty svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 16px;
+            opacity: 0.4;
+        }
+
+        .wishlist-empty h3 {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: var(--ink-gray);
+        }
+
+        /* Toast */
         .toast {
             position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: #333;
-            color: white;
-            padding: 15px 25px;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: var(--ink-black);
+            color: var(--paper-white);
+            padding: 14px 24px;
             border-radius: 8px;
             z-index: 2000;
             opacity: 0;
-            transform: translateY(20px);
             transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
 
         .toast.show {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateX(-50%) translateY(0);
         }
 
         .toast.success {
-            background: #4CAF50;
+            background: var(--accent-green);
         }
 
-        .toast.error {
-            background: #f44336;
+        /* 編輯計數徽章 */
+        .edit-badge {
+            background: var(--accent-warm);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
         }
 
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 1.8rem;
+        /* 隱藏區塊 */
+        .hidden {
+            display: none !important;
+        }
+
+        /* 空狀態 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 24px;
+            color: var(--ink-light);
+        }
+
+        .empty-state svg {
+            width: 56px;
+            height: 56px;
+            margin-bottom: 16px;
+            opacity: 0.4;
+        }
+
+        .empty-state h3 {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--ink-gray);
+        }
+
+        /* 響應式設計 */
+        @media (min-width: 768px) {
+            body {
+                padding-bottom: 0;
             }
 
-            .filter-row {
-                flex-direction: column;
+            .bottom-nav {
+                display: none;
+            }
+
+            .main-container {
+                padding: 0 48px;
+            }
+
+            .page-title h1 {
+                font-size: 48px;
             }
 
             .books-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+                gap: 28px;
+            }
+
+            .modal {
+                align-items: center;
             }
 
             .modal-content {
-                padding: 20px;
+                border-radius: 16px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .books-grid {
+                grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+                gap: 32px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>📚 誠品寵物書籍目錄</h1>
-            <p>收錄 <span id="totalBooks">0</span> 本書籍，依動物種類與主題分類</p>
-            <div class="toolbar">
-                <span class="edit-count" id="editCount" style="display: none;">已修改 0 本</span>
-                <button onclick="exportCSV()" class="primary">📥 匯出修正後 CSV</button>
-                <button onclick="clearEdits()">🗑️ 清除所有修改</button>
+    <!-- 頂部導航 -->
+    <header class="top-header">
+        <div class="top-header-inner">
+            <span></span>
+            <div class="header-actions">
+                <span class="edit-badge" id="editCount" style="display: none;">已修改 0 本</span>
+                <button class="header-btn" onclick="clearEdits()">清除修改</button>
+                <button class="header-btn primary" onclick="exportCSV()">匯出 CSV</button>
             </div>
-        </header>
+        </div>
+    </header>
 
-        <div class="stats-container" id="statsContainer"></div>
+    <!-- 主要內容 -->
+    <main class="main-container">
+        <!-- 頁面標題 -->
+        <div class="page-title">
+            <h1>寵物書籍</h1>
+            <p class="page-subtitle">收錄 <span id="totalBooks">0</span> 本精選書籍</p>
+        </div>
 
-        <div class="filters">
-            <h3>🔍 篩選與搜尋</h3>
-            <div class="filter-row">
-                <div class="filter-group">
-                    <label>關鍵字搜尋</label>
-                    <input type="text" id="searchInput" placeholder="輸入書名或作者...">
-                </div>
-                <div class="filter-group">
-                    <label>動物種類</label>
-                    <select id="animalFilter">
-                        <option value="">全部動物</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label>主題分類</label>
-                    <select id="topicFilter">
-                        <option value="">全部主題</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label>顯示狀態</label>
-                    <select id="editFilter">
-                        <option value="">全部書籍</option>
-                        <option value="edited">僅顯示已修改</option>
-                        <option value="unedited">僅顯示未修改</option>
-                    </select>
-                </div>
+        <!-- 統計 -->
+        <div class="stats-row">
+            <div class="stat-chip">
+                <span class="number" id="statTotal">0</span>
+                <span>本書籍</span>
             </div>
-
-            <div>
-                <label style="font-weight: 500; color: #555; margin-bottom: 8px; display: block;">快速篩選 - 動物種類</label>
-                <div class="tags-container" id="animalTags"></div>
+            <div class="stat-chip">
+                <span class="number" id="statAnimals">8</span>
+                <span>種動物</span>
             </div>
-
-            <div style="margin-top: 15px;">
-                <label style="font-weight: 500; color: #555; margin-bottom: 8px; display: block;">快速篩選 - 主題分類</label>
-                <div class="tags-container" id="topicTags"></div>
+            <div class="stat-chip">
+                <span class="number" id="statTopics">18</span>
+                <span>個主題</span>
+            </div>
+            <div class="stat-chip">
+                <span class="number" id="statWishlist">0</span>
+                <span>想讀</span>
             </div>
         </div>
 
+        <!-- 搜尋 -->
+        <div class="search-section">
+            <div class="search-bar">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input type="text" id="searchInput" placeholder="搜尋書名或作者...">
+            </div>
+        </div>
+
+        <!-- 篩選區 -->
+        <div class="filter-section">
+            <div class="filter-dropdowns">
+                <select class="filter-select" id="animalFilter">
+                    <option value="">全部動物</option>
+                </select>
+                <select class="filter-select" id="topicFilter">
+                    <option value="">全部主題</option>
+                </select>
+                <select class="filter-select" id="editFilter">
+                    <option value="">全部書籍</option>
+                    <option value="edited">已修改</option>
+                    <option value="wishlist">想讀清單</option>
+                </select>
+            </div>
+
+            <div class="filter-title">動物種類</div>
+            <div class="filter-tags" id="animalTags"></div>
+
+            <div class="filter-title">主題分類</div>
+            <div class="filter-tags" id="topicTags"></div>
+        </div>
+
+        <!-- 結果資訊 -->
         <div class="results-info">
-            <div class="count">顯示 <span id="resultsCount">0</span> 本書籍</div>
+            <span class="results-count">顯示 <span id="resultsCount">0</span> 本書籍</span>
             <div class="view-toggle">
-                <button id="gridView" class="active">卡片檢視</button>
-                <button id="tableView">表格檢視</button>
+                <button class="view-btn active" id="gridView">卡片</button>
+                <button class="view-btn" id="tableView">表格</button>
             </div>
         </div>
 
+        <!-- 所有書籍 -->
+        <div class="section-header">
+            <h2 class="section-title">所有書籍</h2>
+        </div>
         <div class="books-grid" id="booksGrid"></div>
+
+        <!-- 表格視圖 -->
         <div class="books-table" id="booksTable">
             <table>
                 <thead>
@@ -733,8 +1145,8 @@
                         <th>書名</th>
                         <th>作者</th>
                         <th>售價</th>
-                        <th>動物種類</th>
-                        <th>主題分類</th>
+                        <th>動物</th>
+                        <th>主題</th>
                         <th>操作</th>
                     </tr>
                 </thead>
@@ -742,27 +1154,78 @@
             </table>
         </div>
 
-        <div class="pagination" id="pagination"></div>
+        <!-- 空狀態 -->
+        <div class="empty-state hidden" id="emptyState">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+            </svg>
+            <h3>找不到書籍</h3>
+            <p>試試其他搜尋條件</p>
+        </div>
 
-        <footer>
-            <p>資料來源：誠品書店 | 點擊「編輯」按鈕可修正分類</p>
-        </footer>
-    </div>
+        <!-- 分頁 -->
+        <div class="pagination" id="pagination"></div>
+    </main>
+
+    <!-- 底部導航 -->
+    <nav class="bottom-nav">
+        <div class="bottom-nav-inner">
+            <button class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+                <span>閱讀中</span>
+            </button>
+            <button class="nav-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                </svg>
+                <span>書庫</span>
+            </button>
+            <button class="nav-item active">
+                <svg fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>
+                </svg>
+                <span>書店</span>
+            </button>
+            <div class="nav-item-wrapper">
+                <button class="nav-item" onclick="openWishlistModal()">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                    </svg>
+                    <span>想讀</span>
+                    <span class="badge" id="wishlistBadge" style="display: none;">0</span>
+                </button>
+            </div>
+            <button class="nav-item" onclick="document.getElementById('searchInput').focus()">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <span>搜尋</span>
+            </button>
+        </div>
+    </nav>
 
     <!-- 編輯 Modal -->
     <div class="modal" id="editModal">
         <div class="modal-content">
-            <span class="modal-close" onclick="closeModal()">&times;</span>
-            <h2>✏️ 編輯書籍分類</h2>
-            <div class="book-info" id="modalBookInfo"></div>
+            <div class="modal-header">
+                <h2>編輯分類</h2>
+                <button class="modal-close" onclick="closeModal()">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="book-info-card" id="modalBookInfo"></div>
 
             <div class="form-group">
-                <label>動物種類（可多選）</label>
+                <label>動物種類</label>
                 <div class="checkbox-group" id="animalCheckboxes"></div>
             </div>
 
             <div class="form-group">
-                <label>主題分類（可多選）</label>
+                <label>主題分類</label>
                 <div class="checkbox-group" id="topicCheckboxes"></div>
             </div>
 
@@ -773,7 +1236,22 @@
         </div>
     </div>
 
-    <!-- Toast 通知 -->
+    <!-- Want to Read Modal -->
+    <div class="modal wishlist-modal" id="wishlistModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>想讀清單</h2>
+                <button class="modal-close" onclick="closeWishlistModal()">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="wishlist-list" id="wishlistList"></div>
+        </div>
+    </div>
+
+    <!-- Toast -->
     <div class="toast" id="toast"></div>
 
     <script src="books_data.js"></script>
@@ -785,67 +1263,77 @@
         let currentView = 'grid';
         let editingBookIndex = null;
 
-        // 從 localStorage 載入編輯記錄
+        // 從 localStorage 載入資料
         let edits = JSON.parse(localStorage.getItem('bookEdits') || '{}');
+        let wishlist = JSON.parse(localStorage.getItem('bookWishlist') || '[]');
 
-        // 動物種類和主題選項
+        // 分類選項
         const animalOptions = ['貓', '狗', '鳥類', '魚類水族', '爬蟲兩棲', '小動物', '野生動物', '通用'];
         const topicOptions = ['照護飼養', '行為訓練', '醫療健康', '寵物溝通', '圖鑑百科', '攝影藝術', '故事散文', '離世告別', '美容', '昆蟲', '海洋生物', '自然科普', '獸醫專業', '農牧養殖', '童書繪本', '環境保育', '藝術人文', '其他'];
 
-        // 取得書籍的分類（考慮編輯）
         function getBookCategories(book, index) {
             if (edits[index]) {
-                return {
-                    animal: edits[index].animal || '',
-                    topic: edits[index].topic || ''
-                };
+                return { animal: edits[index].animal || '', topic: edits[index].topic || '' };
             }
-            return {
-                animal: book['動物種類'] || '',
-                topic: book['主題分類'] || ''
-            };
+            return { animal: book['動物種類'] || '', topic: book['主題分類'] || '' };
         }
 
-        // 初始化
+        function isInWishlist(index) {
+            return wishlist.includes(index);
+        }
+
+        function toggleWishlist(index, event) {
+            if (event) event.stopPropagation();
+            const idx = wishlist.indexOf(index);
+            if (idx > -1) {
+                wishlist.splice(idx, 1);
+                showToast('已從想讀清單移除', 'success');
+            } else {
+                wishlist.push(index);
+                showToast('已加入想讀清單', 'success');
+            }
+            localStorage.setItem('bookWishlist', JSON.stringify(wishlist));
+            updateWishlistCount();
+            filterAndDisplay();
+        }
+
+        function updateWishlistCount() {
+            const count = wishlist.length;
+            document.getElementById('statWishlist').textContent = count;
+            const badge = document.getElementById('wishlistBadge');
+            if (count > 0) {
+                badge.textContent = count;
+                badge.style.display = 'block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
         function init() {
             document.getElementById('totalBooks').textContent = booksData.length;
+            document.getElementById('statTotal').textContent = booksData.length;
 
-            // 填充下拉選單
             const animalSelect = document.getElementById('animalFilter');
             const topicSelect = document.getElementById('topicFilter');
 
             animalOptions.forEach(type => {
                 animalSelect.innerHTML += `<option value="${type}">${type}</option>`;
             });
-
             topicOptions.forEach(type => {
                 topicSelect.innerHTML += `<option value="${type}">${type}</option>`;
             });
 
-            // 建立標籤
             createTags();
-
-            // 建立統計
-            createStats();
-
-            // 建立 checkbox
             createCheckboxes();
-
-            // 綁定事件
             bindEvents();
-
-            // 更新編輯計數
             updateEditCount();
-
-            // 顯示書籍
+            updateWishlistCount();
             filterAndDisplay();
         }
 
         function createTags() {
             const animalTagsContainer = document.getElementById('animalTags');
             const topicTagsContainer = document.getElementById('topicTags');
-
-            // 計算各類別數量（考慮編輯）
             const animalCounts = {};
             const topicCounts = {};
 
@@ -868,84 +1356,30 @@
             animalTagsContainer.innerHTML = '';
             topicTagsContainer.innerHTML = '';
 
-            Object.entries(animalCounts)
-                .sort((a, b) => b[1] - a[1])
-                .forEach(([type, count]) => {
-                    animalTagsContainer.innerHTML += `
-                        <span class="tag animal" data-type="${type}">${type} (${count})</span>
-                    `;
-                });
+            Object.entries(animalCounts).sort((a, b) => b[1] - a[1]).forEach(([type, count]) => {
+                animalTagsContainer.innerHTML += `<span class="filter-tag animal" data-type="${type}">${type} (${count})</span>`;
+            });
+            Object.entries(topicCounts).sort((a, b) => b[1] - a[1]).forEach(([type, count]) => {
+                topicTagsContainer.innerHTML += `<span class="filter-tag topic" data-type="${type}">${type} (${count})</span>`;
+            });
 
-            Object.entries(topicCounts)
-                .sort((a, b) => b[1] - a[1])
-                .forEach(([type, count]) => {
-                    topicTagsContainer.innerHTML += `
-                        <span class="tag topic" data-type="${type}">${type} (${count})</span>
-                    `;
-                });
-
-            // 重新綁定標籤事件
             bindTagEvents();
         }
 
-        function createStats() {
-            const container = document.getElementById('statsContainer');
-            const editedCount = Object.keys(edits).length;
-
-            const stats = [
-                { label: '總書籍數', value: booksData.length },
-                { label: '動物種類', value: animalOptions.length },
-                { label: '主題分類', value: topicOptions.length },
-                { label: '已修正', value: editedCount },
-            ];
-
-            container.innerHTML = stats.map(s => `
-                <div class="stat-card">
-                    <div class="number">${s.value}</div>
-                    <div class="label">${s.label}</div>
-                </div>
-            `).join('');
-        }
-
         function createCheckboxes() {
-            const animalContainer = document.getElementById('animalCheckboxes');
-            const topicContainer = document.getElementById('topicCheckboxes');
-
-            animalContainer.innerHTML = animalOptions.map(opt => `
-                <label class="checkbox-item animal">
-                    <input type="checkbox" value="${opt}" name="animal">
-                    <span>${opt}</span>
-                </label>
-            `).join('');
-
-            topicContainer.innerHTML = topicOptions.map(opt => `
-                <label class="checkbox-item topic">
-                    <input type="checkbox" value="${opt}" name="topic">
-                    <span>${opt}</span>
-                </label>
-            `).join('');
+            document.getElementById('animalCheckboxes').innerHTML = animalOptions.map(opt =>
+                `<label class="checkbox-item"><input type="checkbox" value="${opt}" name="animal"><span>${opt}</span></label>`
+            ).join('');
+            document.getElementById('topicCheckboxes').innerHTML = topicOptions.map(opt =>
+                `<label class="checkbox-item"><input type="checkbox" value="${opt}" name="topic"><span>${opt}</span></label>`
+            ).join('');
         }
 
         function bindEvents() {
-            document.getElementById('searchInput').addEventListener('input', () => {
-                currentPage = 1;
-                filterAndDisplay();
-            });
-
-            document.getElementById('animalFilter').addEventListener('change', () => {
-                currentPage = 1;
-                filterAndDisplay();
-            });
-
-            document.getElementById('topicFilter').addEventListener('change', () => {
-                currentPage = 1;
-                filterAndDisplay();
-            });
-
-            document.getElementById('editFilter').addEventListener('change', () => {
-                currentPage = 1;
-                filterAndDisplay();
-            });
+            document.getElementById('searchInput').addEventListener('input', () => { currentPage = 1; filterAndDisplay(); });
+            document.getElementById('animalFilter').addEventListener('change', () => { currentPage = 1; filterAndDisplay(); });
+            document.getElementById('topicFilter').addEventListener('change', () => { currentPage = 1; filterAndDisplay(); });
+            document.getElementById('editFilter').addEventListener('change', () => { currentPage = 1; filterAndDisplay(); });
 
             document.getElementById('gridView').addEventListener('click', () => {
                 currentView = 'grid';
@@ -963,28 +1397,27 @@
                 document.getElementById('booksTable').style.display = 'block';
             });
 
-            // Modal 關閉
-            document.getElementById('editModal').addEventListener('click', (e) => {
-                if (e.target.id === 'editModal') closeModal();
-            });
+            document.getElementById('editModal').addEventListener('click', (e) => { if (e.target.id === 'editModal') closeModal(); });
+            document.getElementById('wishlistModal').addEventListener('click', (e) => { if (e.target.id === 'wishlistModal') closeWishlistModal(); });
         }
 
         function bindTagEvents() {
-            document.querySelectorAll('.tag.animal').forEach(tag => {
+            document.querySelectorAll('.filter-tag.animal').forEach(tag => {
                 tag.addEventListener('click', () => {
-                    document.querySelectorAll('.tag.animal').forEach(t => t.classList.remove('active'));
-                    tag.classList.toggle('active');
-                    document.getElementById('animalFilter').value = tag.classList.contains('active') ? tag.dataset.type : '';
+                    const wasActive = tag.classList.contains('active');
+                    document.querySelectorAll('.filter-tag.animal').forEach(t => t.classList.remove('active'));
+                    if (!wasActive) tag.classList.add('active');
+                    document.getElementById('animalFilter').value = wasActive ? '' : tag.dataset.type;
                     currentPage = 1;
                     filterAndDisplay();
                 });
             });
-
-            document.querySelectorAll('.tag.topic').forEach(tag => {
+            document.querySelectorAll('.filter-tag.topic').forEach(tag => {
                 tag.addEventListener('click', () => {
-                    document.querySelectorAll('.tag.topic').forEach(t => t.classList.remove('active'));
-                    tag.classList.toggle('active');
-                    document.getElementById('topicFilter').value = tag.classList.contains('active') ? tag.dataset.type : '';
+                    const wasActive = tag.classList.contains('active');
+                    document.querySelectorAll('.filter-tag.topic').forEach(t => t.classList.remove('active'));
+                    if (!wasActive) tag.classList.add('active');
+                    document.getElementById('topicFilter').value = wasActive ? '' : tag.dataset.type;
                     currentPage = 1;
                     filterAndDisplay();
                 });
@@ -997,27 +1430,71 @@
             const topicFilter = document.getElementById('topicFilter').value;
             const editFilter = document.getElementById('editFilter').value;
 
-            filteredBooks = booksData.map((book, index) => ({ ...book, _index: index })).filter((book, idx) => {
+            filteredBooks = booksData.map((book, index) => ({ ...book, _index: index })).filter(book => {
                 const cats = getBookCategories(book, book._index);
                 const isEdited = !!edits[book._index];
+                const inWishlist = isInWishlist(book._index);
 
-                const matchSearch = !search ||
-                    (book['書名'] && book['書名'].toLowerCase().includes(search)) ||
-                    (book['作者'] && book['作者'].toLowerCase().includes(search));
-
+                const matchSearch = !search || (book['書名'] && book['書名'].toLowerCase().includes(search)) || (book['作者'] && book['作者'].toLowerCase().includes(search));
                 const matchAnimal = !animalFilter || cats.animal.includes(animalFilter);
                 const matchTopic = !topicFilter || cats.topic.includes(topicFilter);
-
-                const matchEdit = !editFilter ||
-                    (editFilter === 'edited' && isEdited) ||
-                    (editFilter === 'unedited' && !isEdited);
+                let matchEdit = true;
+                if (editFilter === 'edited') matchEdit = isEdited;
+                else if (editFilter === 'wishlist') matchEdit = inWishlist;
 
                 return matchSearch && matchAnimal && matchTopic && matchEdit;
             });
 
             document.getElementById('resultsCount').textContent = filteredBooks.length;
+            document.getElementById('emptyState').classList.toggle('hidden', filteredBooks.length > 0);
+            document.getElementById('booksGrid').classList.toggle('hidden', filteredBooks.length === 0);
+
             displayBooks();
             displayPagination();
+        }
+
+        function createBookCard(book) {
+            const cats = getBookCategories(book, book._index);
+            const inWishlist = isInWishlist(book._index);
+
+            return `
+                <div class="book-card ${inWishlist ? 'in-wishlist' : ''}">
+                    <div class="book-cover">
+                        <img src="${book['圖片'] || ''}" alt="${book['書名']}"
+                             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22300%22><rect fill=%22%23F5F5F0%22 width=%22200%22 height=%22300%22/><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%236B6B6B%22 font-size=%2214%22 font-family=%22serif%22>No Image</text></svg>'">
+                    </div>
+                    <div class="book-info">
+                        <div class="book-title">${book['書名'] || '無書名'}</div>
+                        <div class="book-author">${book['作者'] || '未知作者'}</div>
+                        <div class="book-price">
+                            <span class="current-price">$${book['售價'] || '-'}</span>
+                            ${book['原價'] ? `<span class="original-price">$${book['原價']}</span>` : ''}
+                        </div>
+                        <div class="book-categories">
+                            ${cats.animal.split(', ').filter(t => t).slice(0, 1).map(t => `<span class="category-tag animal">${t}</span>`).join('')}
+                            ${cats.topic.split(', ').filter(t => t).slice(0, 1).map(t => `<span class="category-tag topic">${t}</span>`).join('')}
+                        </div>
+                        <div class="book-actions">
+                            <a href="${book['連結']}" target="_blank" class="buy-btn">購買 $${book['售價'] || '-'}</a>
+                            <div class="secondary-btns">
+                                <button class="wishlist-btn ${inWishlist ? 'active' : ''}" onclick="toggleWishlist(${book._index}, event)">
+                                    <svg viewBox="0 0 24 24" fill="${inWishlist ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 4c-1.5-1.5-4-2-6 0s-2 4.5 0 6l6 6 6-6c2-1.5 2-4 0-6s-4.5-1.5-6 0z"/>
+                                    </svg>
+                                    想讀
+                                </button>
+                                <button class="edit-btn" onclick="openEditModal(${book._index})">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                    </svg>
+                                    編輯
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
         }
 
         function displayBooks() {
@@ -1025,59 +1502,23 @@
             const end = start + ITEMS_PER_PAGE;
             const pageBooks = filteredBooks.slice(start, end);
 
-            const grid = document.getElementById('booksGrid');
-            if (pageBooks.length === 0) {
-                grid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: white; padding: 40px;">
-                    <h3>找不到符合條件的書籍</h3>
-                </div>`;
-            } else {
-                grid.innerHTML = pageBooks.map(book => {
-                    const cats = getBookCategories(book, book._index);
-                    const isEdited = !!edits[book._index];
-                    return `
-                    <div class="book-card ${isEdited ? 'edited' : ''}">
-                        <div class="image-container">
-                            <img src="${book['圖片'] || ''}" alt="${book['書名']}"
-                                 onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect fill=%22%23f0f0f0%22 width=%22100%22 height=%22100%22/><text x=%2250%%22 y=%2250%%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22 fill=%22%23999%22 font-size=%2214%22>No Image</text></svg>'">
-                        </div>
-                        <div class="content">
-                            <div class="title" title="${book['書名']}">${book['書名'] || '無書名'}</div>
-                            <div class="author">${book['作者'] || '未知作者'}</div>
-                            <div class="price-row">
-                                <span class="price">$${book['售價'] || '-'}</span>
-                                ${book['原價'] ? `<span class="original-price">$${book['原價']}</span>` : ''}
-                                ${book['折扣'] ? `<span class="discount">${book['折扣']}</span>` : ''}
-                            </div>
-                            <div class="categories">
-                                ${cats.animal.split(', ').filter(t => t).map(t =>
-                                    `<span class="category-tag animal">${t}</span>`
-                                ).join('')}
-                                ${cats.topic.split(', ').filter(t => t).map(t =>
-                                    `<span class="category-tag topic">${t}</span>`
-                                ).join('')}
-                            </div>
-                            <div class="buttons">
-                                <a href="${book['連結']}" target="_blank" class="link-btn">購買</a>
-                                <button class="edit-btn" onclick="openEditModal(${book._index})">編輯</button>
-                            </div>
-                        </div>
-                    </div>
-                `}).join('');
-            }
+            document.getElementById('booksGrid').innerHTML = pageBooks.map(book => createBookCard(book)).join('');
 
-            // 表格檢視
-            const tableBody = document.getElementById('tableBody');
-            tableBody.innerHTML = pageBooks.map(book => {
+            document.getElementById('tableBody').innerHTML = pageBooks.map(book => {
                 const cats = getBookCategories(book, book._index);
                 const isEdited = !!edits[book._index];
+                const inWishlist = isInWishlist(book._index);
                 return `
-                <tr style="${isEdited ? 'background: #e8f5e9;' : ''}">
-                    <td>${book['書名'] || '-'}</td>
+                <tr style="${isEdited ? 'background: #F5FAF5;' : ''}">
+                    <td><strong>${book['書名'] || '-'}</strong></td>
                     <td>${book['作者'] || '-'}</td>
-                    <td>$${book['售價'] || '-'}</td>
+                    <td style="font-weight: 600; color: var(--accent-orange);">$${book['售價'] || '-'}</td>
                     <td>${cats.animal || '-'}</td>
                     <td>${cats.topic || '-'}</td>
-                    <td><button class="edit-btn" onclick="openEditModal(${book._index})">編輯</button></td>
+                    <td>
+                        <button class="table-btn ${inWishlist ? 'wishlist-active' : ''}" onclick="toggleWishlist(${book._index})">${inWishlist ? '已想讀' : '想讀'}</button>
+                        <button class="table-btn" onclick="openEditModal(${book._index})">編輯</button>
+                    </td>
                 </tr>
             `}).join('');
         }
@@ -1086,12 +1527,11 @@
             const totalPages = Math.ceil(filteredBooks.length / ITEMS_PER_PAGE);
             const pagination = document.getElementById('pagination');
 
-            if (totalPages <= 1) {
-                pagination.innerHTML = '';
-                return;
-            }
+            if (totalPages <= 1) { pagination.innerHTML = ''; return; }
 
-            let html = `<button ${currentPage === 1 ? 'disabled' : ''} onclick="goToPage(${currentPage - 1})">上一頁</button>`;
+            let html = `<button ${currentPage === 1 ? 'disabled' : ''} onclick="goToPage(${currentPage - 1})">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            </button>`;
 
             const startPage = Math.max(1, currentPage - 2);
             const endPage = Math.min(totalPages, currentPage + 2);
@@ -1110,7 +1550,9 @@
                 html += `<button onclick="goToPage(${totalPages})">${totalPages}</button>`;
             }
 
-            html += `<button ${currentPage === totalPages ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})">下一頁</button>`;
+            html += `<button ${currentPage === totalPages ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </button>`;
 
             pagination.innerHTML = html;
         }
@@ -1119,31 +1561,21 @@
             currentPage = page;
             displayBooks();
             displayPagination();
-            window.scrollTo({ top: 400, behavior: 'smooth' });
+            window.scrollTo({ top: 200, behavior: 'smooth' });
         }
 
-        // 編輯功能
         function openEditModal(index) {
             editingBookIndex = index;
             const book = booksData[index];
             const cats = getBookCategories(book, index);
 
-            document.getElementById('modalBookInfo').innerHTML = `
-                <h4>${book['書名']}</h4>
-                <p>作者：${book['作者'] || '未知'}</p>
-            `;
+            document.getElementById('modalBookInfo').innerHTML = `<h4>${book['書名']}</h4><p>作者：${book['作者'] || '未知'}</p>`;
 
-            // 設定 checkbox 狀態
             const currentAnimals = cats.animal.split(', ').map(t => t.trim());
             const currentTopics = cats.topic.split(', ').map(t => t.trim());
 
-            document.querySelectorAll('#animalCheckboxes input').forEach(cb => {
-                cb.checked = currentAnimals.includes(cb.value);
-            });
-
-            document.querySelectorAll('#topicCheckboxes input').forEach(cb => {
-                cb.checked = currentTopics.includes(cb.value);
-            });
+            document.querySelectorAll('#animalCheckboxes input').forEach(cb => { cb.checked = currentAnimals.includes(cb.value); });
+            document.querySelectorAll('#topicCheckboxes input').forEach(cb => { cb.checked = currentTopics.includes(cb.value); });
 
             document.getElementById('editModal').classList.add('active');
         }
@@ -1156,87 +1588,95 @@
         function saveEdit() {
             if (editingBookIndex === null) return;
 
-            const selectedAnimals = [];
-            const selectedTopics = [];
+            const selectedAnimals = [...document.querySelectorAll('#animalCheckboxes input:checked')].map(cb => cb.value);
+            const selectedTopics = [...document.querySelectorAll('#topicCheckboxes input:checked')].map(cb => cb.value);
 
-            document.querySelectorAll('#animalCheckboxes input:checked').forEach(cb => {
-                selectedAnimals.push(cb.value);
-            });
-
-            document.querySelectorAll('#topicCheckboxes input:checked').forEach(cb => {
-                selectedTopics.push(cb.value);
-            });
-
-            edits[editingBookIndex] = {
-                animal: selectedAnimals.join(', '),
-                topic: selectedTopics.join(', ')
-            };
-
+            edits[editingBookIndex] = { animal: selectedAnimals.join(', '), topic: selectedTopics.join(', ') };
             localStorage.setItem('bookEdits', JSON.stringify(edits));
 
             closeModal();
             updateEditCount();
             createTags();
-            createStats();
             filterAndDisplay();
-            showToast('分類已儲存！', 'success');
+            showToast('已儲存變更', 'success');
         }
 
         function updateEditCount() {
             const count = Object.keys(edits).length;
-            const el = document.getElementById('editCount');
+            const badge = document.getElementById('editCount');
             if (count > 0) {
-                el.textContent = `已修改 ${count} 本`;
-                el.style.display = 'inline-block';
+                badge.textContent = `已修改 ${count} 本`;
+                badge.style.display = 'inline-block';
             } else {
-                el.style.display = 'none';
+                badge.style.display = 'none';
             }
         }
 
         function clearEdits() {
-            if (!confirm('確定要清除所有修改嗎？此操作無法復原。')) return;
+            if (!confirm('確定要清除所有修改嗎？')) return;
             edits = {};
             localStorage.removeItem('bookEdits');
             updateEditCount();
             createTags();
-            createStats();
             filterAndDisplay();
             showToast('已清除所有修改', 'success');
         }
 
+        function openWishlistModal() {
+            const list = document.getElementById('wishlistList');
+
+            if (wishlist.length === 0) {
+                list.innerHTML = `
+                    <div class="wishlist-empty">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                        </svg>
+                        <h3>還沒有想讀的書</h3>
+                        <p>點擊書籍卡片上的「想讀」按鈕來加入</p>
+                    </div>
+                `;
+            } else {
+                list.innerHTML = wishlist.map(index => {
+                    const book = booksData[index];
+                    if (!book) return '';
+                    return `
+                        <div class="wishlist-item">
+                            <img src="${book['圖片'] || ''}" alt="${book['書名']}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2250%22 height=%2275%22><rect fill=%22%23F5F5F0%22 width=%2250%22 height=%2275%22/></svg>'">
+                            <div class="wishlist-item-info">
+                                <div class="wishlist-item-title">${book['書名'] || '無書名'}</div>
+                                <div class="wishlist-item-author">${book['作者'] || '未知作者'}</div>
+                            </div>
+                            <button class="wishlist-item-remove" onclick="removeFromWishlist(${index})">移除</button>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            document.getElementById('wishlistModal').classList.add('active');
+        }
+
+        function closeWishlistModal() { document.getElementById('wishlistModal').classList.remove('active'); }
+
+        function removeFromWishlist(index) { toggleWishlist(index); openWishlistModal(); }
+
         function exportCSV() {
-            const headers = ['書名', '作者', '售價', '原價', '折扣', '動物種類', '主題分類', '組合分類', '連結', '圖片'];
+            const headers = ['書名', '作者', '售價', '原價', '折扣', '動物種類', '主題分類', '組合分類', '連結', '圖片', '想讀'];
             const rows = booksData.map((book, index) => {
                 const cats = getBookCategories(book, index);
                 const combined = [];
                 cats.animal.split(', ').filter(a => a).forEach(a => {
-                    cats.topic.split(', ').filter(t => t).forEach(t => {
-                        combined.push(`${a}-${t}`);
-                    });
+                    cats.topic.split(', ').filter(t => t).forEach(t => { combined.push(`${a}-${t}`); });
                 });
-
-                return [
-                    book['書名'] || '',
-                    book['作者'] || '',
-                    book['售價'] || '',
-                    book['原價'] || '',
-                    book['折扣'] || '',
-                    cats.animal,
-                    cats.topic,
-                    combined.join(', '),
-                    book['連結'] || '',
-                    book['圖片'] || ''
-                ].map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',');
+                return [book['書名'] || '', book['作者'] || '', book['售價'] || '', book['原價'] || '', book['折扣'] || '', cats.animal, cats.topic, combined.join(', '), book['連結'] || '', book['圖片'] || '', isInWishlist(index) ? '是' : ''].map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',');
             });
 
             const csv = '\uFEFF' + headers.join(',') + '\n' + rows.join('\n');
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = `pet_books_corrected_${new Date().toISOString().slice(0,10)}.csv`;
+            link.download = `pet_books_${new Date().toISOString().slice(0,10)}.csv`;
             link.click();
-
-            showToast('CSV 已下載！', 'success');
+            showToast('CSV 已下載', 'success');
         }
 
         function showToast(message, type = '') {
@@ -1247,7 +1687,6 @@
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
-        // 啟動
         init();
     </script>
 </body>
