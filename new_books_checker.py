@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 誠品寵物書籍 - 新書通知腳本
-定期檢查是否有新書上架，並發送 Email 通知
+定期檢查是否有新書上架，並發送 Email 通知給所有訂閱者
+支援從 Google Sheets 讀取訂閱者名單
 """
 
 import asyncio
@@ -23,7 +24,76 @@ SMTP_SERVER = os.environ.get("SMTP_SERVER", "smtp.gmail.com")
 SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
 SENDER_EMAIL = os.environ.get("SENDER_EMAIL", "")
 SENDER_PASSWORD = os.environ.get("SENDER_PASSWORD", "")  # Gmail 應用程式密碼
+
+# Google Sheets 設定
+GOOGLE_SHEETS_ID = os.environ.get("GOOGLE_SHEETS_ID", "")  # Google Sheets 的 ID
+GOOGLE_CREDENTIALS_JSON = os.environ.get("GOOGLE_CREDENTIALS_JSON", "")  # Service Account JSON
+
+# 向下相容：如果有設定 RECIPIENT_EMAIL，也加入訂閱者名單
 RECIPIENT_EMAIL = os.environ.get("RECIPIENT_EMAIL", "")
+
+
+def get_subscribers_from_google_sheets() -> list:
+    """從 Google Sheets 讀取訂閱者 Email 名單"""
+    subscribers = []
+
+    # 如果沒有設定 Google Sheets，返回空列表
+    if not GOOGLE_SHEETS_ID or not GOOGLE_CREDENTIALS_JSON:
+        print("未設定 Google Sheets，跳過從試算表讀取訂閱者")
+        return subscribers
+
+    try:
+        import gspread
+        from google.oauth2.service_account import Credentials
+
+        # 解析 credentials JSON
+        credentials_dict = json.loads(GOOGLE_CREDENTIALS_JSON)
+
+        # 設定 Google Sheets API 權限範圍
+        scopes = [
+            'https://www.googleapis.com/auth/spreadsheets.readonly'
+        ]
+
+        credentials = Credentials.from_service_account_info(credentials_dict, scopes=scopes)
+        client = gspread.authorize(credentials)
+
+        # 開啟試算表
+        spreadsheet = client.open_by_key(GOOGLE_SHEETS_ID)
+        worksheet = spreadsheet.sheet1  # 使用第一個工作表
+
+        # 讀取所有資料（假設 Email 在第一欄，第一列是標題）
+        all_values = worksheet.get_all_values()
+
+        if len(all_values) > 1:  # 有資料（除了標題）
+            for row in all_values[1:]:  # 跳過標題列
+                if row and row[0]:  # 確保有 Email
+                    email = row[0].strip()
+                    if '@' in email:  # 簡單驗證是否為 Email
+                        subscribers.append(email)
+
+        print(f"從 Google Sheets 讀取到 {len(subscribers)} 位訂閱者")
+
+    except ImportError:
+        print("警告: 未安裝 gspread 或 google-auth，無法讀取 Google Sheets")
+    except Exception as e:
+        print(f"讀取 Google Sheets 時發生錯誤: {e}")
+
+    return subscribers
+
+
+def get_all_subscribers() -> list:
+    """取得所有訂閱者（Google Sheets + 環境變數）"""
+    subscribers = set()  # 使用 set 避免重複
+
+    # 從 Google Sheets 讀取
+    sheets_subscribers = get_subscribers_from_google_sheets()
+    subscribers.update(sheets_subscribers)
+
+    # 加入環境變數中的收件人（向下相容）
+    if RECIPIENT_EMAIL:
+        subscribers.add(RECIPIENT_EMAIL)
+
+    return list(subscribers)
 
 
 async def get_total_pages(page) -> int:
@@ -150,20 +220,13 @@ def find_new_books(current_books: list, previous_books: list) -> list:
     return new_books
 
 
-def send_email(new_books: list):
-    """發送新書通知 Email"""
-    if not all([SENDER_EMAIL, SENDER_PASSWORD, RECIPIENT_EMAIL]):
-        print("Email 設定不完整，跳過發送")
-        print("新書清單：")
-        for book in new_books:
-            print(f"  - {book['name']} ({book['author']})")
-        return False
-
+def send_email_to_subscriber(new_books: list, recipient_email: str) -> bool:
+    """發送新書通知 Email 給單一訂閱者"""
     # 建立郵件
     msg = MIMEMultipart('alternative')
     msg['Subject'] = f'📚 誠品寵物書籍新書通知 - {len(new_books)} 本新書上架！'
     msg['From'] = SENDER_EMAIL
-    msg['To'] = RECIPIENT_EMAIL
+    msg['To'] = recipient_email
 
     # 純文字版本
     text_content = f"誠品寵物書籍有 {len(new_books)} 本新書上架！\n\n"
@@ -180,13 +243,13 @@ def send_email(new_books: list):
         <style>
             body {{ font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }}
             .container {{ max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; padding: 20px; }}
-            h1 {{ color: #667eea; }}
+            h1 {{ color: #E8913A; }}
             .book-card {{ border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin: 15px 0; display: flex; gap: 15px; }}
             .book-card img {{ width: 80px; height: 120px; object-fit: cover; border-radius: 4px; }}
             .book-info h3 {{ margin: 0 0 8px 0; color: #333; }}
             .book-info p {{ margin: 4px 0; color: #666; font-size: 14px; }}
             .price {{ color: #e53935; font-weight: bold; font-size: 18px; }}
-            .btn {{ display: inline-block; background: #667eea; color: white; padding: 8px 16px; border-radius: 5px; text-decoration: none; margin-top: 10px; }}
+            .btn {{ display: inline-block; background: #E8913A; color: white; padding: 8px 16px; border-radius: 5px; text-decoration: none; margin-top: 10px; }}
         </style>
     </head>
     <body>
@@ -210,7 +273,8 @@ def send_email(new_books: list):
 
     html_content += """
             <p style="color: #999; font-size: 12px; margin-top: 30px;">
-                此郵件由誠品寵物書籍新書通知系統自動發送
+                此郵件由誠品寵物書籍新書通知系統自動發送<br>
+                如需取消訂閱，請回覆此郵件
             </p>
         </div>
     </body>
@@ -225,12 +289,42 @@ def send_email(new_books: list):
         with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
             server.starttls()
             server.login(SENDER_EMAIL, SENDER_PASSWORD)
-            server.sendmail(SENDER_EMAIL, RECIPIENT_EMAIL, msg.as_string())
-        print(f"✅ Email 已發送至 {RECIPIENT_EMAIL}")
+            server.sendmail(SENDER_EMAIL, recipient_email, msg.as_string())
         return True
     except Exception as e:
-        print(f"❌ Email 發送失敗: {e}")
+        print(f"  ❌ 發送給 {recipient_email} 失敗: {e}")
         return False
+
+
+def send_email(new_books: list):
+    """發送新書通知 Email 給所有訂閱者"""
+    # 取得所有訂閱者
+    subscribers = get_all_subscribers()
+
+    if not subscribers:
+        print("沒有訂閱者，跳過發送 Email")
+        print("新書清單：")
+        for book in new_books:
+            print(f"  - {book['name']} ({book['author']})")
+        return False
+
+    if not all([SENDER_EMAIL, SENDER_PASSWORD]):
+        print("Email 發送設定不完整（SENDER_EMAIL 或 SENDER_PASSWORD），跳過發送")
+        print("新書清單：")
+        for book in new_books:
+            print(f"  - {book['name']} ({book['author']})")
+        return False
+
+    print(f"\n📧 準備發送 Email 給 {len(subscribers)} 位訂閱者...")
+
+    success_count = 0
+    for subscriber in subscribers:
+        if send_email_to_subscriber(new_books, subscriber):
+            print(f"  ✅ 已發送給 {subscriber}")
+            success_count += 1
+
+    print(f"\n📊 發送結果: {success_count}/{len(subscribers)} 封成功")
+    return success_count > 0
 
 
 async def main():
@@ -238,6 +332,10 @@ async def main():
     print("誠品寵物書籍 - 新書檢查")
     print(f"時間: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("=" * 50)
+
+    # 顯示訂閱者資訊
+    subscribers = get_all_subscribers()
+    print(f"訂閱者數量: {len(subscribers)}")
 
     # 載入上次資料
     previous_data = load_previous_books()

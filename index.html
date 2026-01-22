@@ -981,6 +981,64 @@
             font-weight: 600;
         }
 
+        /* 訂閱區塊 */
+        .subscribe-section {
+            background: linear-gradient(135deg, #F5F1E8 0%, #E8E4DC 100%);
+            border: 1px solid var(--border-soft);
+            border-radius: 12px;
+            padding: 32px;
+            margin: 24px 0;
+            text-align: center;
+        }
+
+        .subscribe-section h3 {
+            font-family: 'Noto Serif TC', serif;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--ink-black);
+            margin-bottom: 8px;
+        }
+
+        .subscribe-section p {
+            color: var(--ink-gray);
+            font-size: 14px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .subscribe-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: var(--accent-orange);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .subscribe-btn:hover {
+            background: #D17E2D;
+            transform: translateY(-1px);
+        }
+
+        .subscribe-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .subscribe-note {
+            font-size: 12px;
+            color: var(--ink-light);
+            margin-top: 12px;
+        }
+
         /* 隱藏區塊 */
         .hidden {
             display: none !important;
@@ -1069,8 +1127,20 @@
             <p class="page-subtitle">收錄 <span id="totalBooks">0</span> 本精選書籍</p>
         </div>
 
+        <!-- 訂閱新書通知 -->
+        <div class="subscribe-section">
+            <h3>訂閱新書通知</h3>
+            <p>填寫 Email 即可在有新書上架時收到通知，不錯過任何一本好書！</p>
+            <a href="#" id="subscribeBtn" class="subscribe-btn" onclick="openSubscribeForm()">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+                訂閱通知
+            </a>
+            <p class="subscribe-note">我們只會在有新書時發信，不會發送垃圾郵件</p>
+        </div>
+
         <!-- 統計 -->
-        <div class="stats-row">
             <div class="stat-chip">
                 <span class="number" id="statTotal">0</span>
                 <span>本書籍</span>
@@ -1685,6 +1755,13 @@
             toast.className = 'toast ' + type;
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // 訂閱表單 URL
+        const SUBSCRIBE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdtuwQvi656DIJxjQjsD-0CClsjduPzk3jvmqt4PYB5eW8oFQ/viewform';
+
+        function openSubscribeForm() {
+            window.open(SUBSCRIBE_FORM_URL, '_blank');
         }
 
         init();
