@@ -981,62 +981,95 @@
             font-weight: 600;
         }
 
-        /* 訂閱區塊 */
+        /* 訂閱區塊 - 精緻橫幅 */
         .subscribe-section {
-            background: linear-gradient(135deg, #F5F1E8 0%, #E8E4DC 100%);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            background: linear-gradient(135deg, #FDF8F3 0%, #F5EFE6 100%);
             border: 1px solid var(--border-soft);
-            border-radius: 12px;
-            padding: 32px;
-            margin: 24px 0;
-            text-align: center;
+            border-radius: 10px;
+            padding: 16px 24px;
+            margin: 8px 0 20px;
         }
 
-        .subscribe-section h3 {
+        .subscribe-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .subscribe-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-orange);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .subscribe-icon svg {
+            width: 20px;
+            height: 20px;
+            color: white;
+        }
+
+        .subscribe-text h3 {
             font-family: 'Noto Serif TC', serif;
-            font-size: 22px;
+            font-size: 15px;
             font-weight: 600;
             color: var(--ink-black);
-            margin-bottom: 8px;
+            margin-bottom: 2px;
         }
 
-        .subscribe-section p {
-            color: var(--ink-gray);
-            font-size: 14px;
-            margin-bottom: 20px;
-            line-height: 1.6;
+        .subscribe-text p {
+            color: var(--ink-light);
+            font-size: 12px;
+            margin: 0;
         }
 
         .subscribe-btn {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            padding: 14px 28px;
+            gap: 6px;
+            padding: 10px 20px;
             background: var(--accent-orange);
             color: white;
             border: none;
             border-radius: 8px;
-            font-size: 15px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
             text-decoration: none;
             transition: all 0.2s;
             font-family: inherit;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .subscribe-btn:hover {
             background: #D17E2D;
             transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(232, 145, 58, 0.3);
         }
 
         .subscribe-btn svg {
-            width: 18px;
-            height: 18px;
+            width: 14px;
+            height: 14px;
         }
 
-        .subscribe-note {
-            font-size: 12px;
-            color: var(--ink-light);
-            margin-top: 12px;
+        @media (max-width: 600px) {
+            .subscribe-section {
+                flex-direction: column;
+                text-align: center;
+                padding: 20px;
+            }
+            .subscribe-content {
+                flex-direction: column;
+            }
         }
 
         /* 隱藏區塊 */
@@ -1127,20 +1160,8 @@
             <p class="page-subtitle">收錄 <span id="totalBooks">0</span> 本精選書籍</p>
         </div>
 
-        <!-- 訂閱新書通知 -->
-        <div class="subscribe-section">
-            <h3>訂閱新書通知</h3>
-            <p>填寫 Email 即可在有新書上架時收到通知，不錯過任何一本好書！</p>
-            <a href="#" id="subscribeBtn" class="subscribe-btn" onclick="openSubscribeForm()">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                </svg>
-                訂閱通知
-            </a>
-            <p class="subscribe-note">我們只會在有新書時發信，不會發送垃圾郵件</p>
-        </div>
-
         <!-- 統計 -->
+        <div class="stats-row">
             <div class="stat-chip">
                 <span class="number" id="statTotal">0</span>
                 <span>本書籍</span>
@@ -1157,6 +1178,27 @@
                 <span class="number" id="statWishlist">0</span>
                 <span>想讀</span>
             </div>
+        </div>
+
+        <!-- 訂閱新書通知 -->
+        <div class="subscribe-section">
+            <div class="subscribe-content">
+                <div class="subscribe-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                    </svg>
+                </div>
+                <div class="subscribe-text">
+                    <h3>新書上架通知</h3>
+                    <p>填寫 Email，新書上架時自動通知你</p>
+                </div>
+            </div>
+            <a href="#" class="subscribe-btn" onclick="openSubscribeForm()">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+                立即訂閱
+            </a>
         </div>
 
         <!-- 搜尋 -->
